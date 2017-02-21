@@ -24,11 +24,16 @@ class DoubleLinkedList {
 
 public:
     DoubleLinkedList() {}
+    ~DoubleLinkedList() {
+        while(head) {
+            removeList(head->t);
+        }
+    }
     void appendNodehead(T t);
     void appendNodeTail(T t);
     void dispNodesForward();
     void dispNodeReverse();
-    void destroyList();
+    void removeList(T t);
 };
 
 template<typename T>
@@ -82,8 +87,44 @@ void DoubleLinkedList<T>::dispNodeReverse()
 }
 
 template<typename T>
-void DoubleLinkedList<T>::destroyList()
+void DoubleLinkedList<T>::removeList(T t)
 {
+    std::shared_ptr<Node> node = std::make_shared<Node>(Node(t));
+    std::shared_ptr<Node> curr = head;
+    if (node && curr) {
+        while (curr) {
+            if (curr == node) {
+                if (curr->pre_ == nullptr) {
+                    if (curr->next_ == nullptr) {
+                        node.reset();
+                        head.reset();
+                        tail.reset();
+                    }
+                    else {
+                        std::shared_ptr<Node> next = curr->next_;
+                        curr->next_.reset();
+                        next->pre_.reset();
+                        head = next;
+                    }
+                }
+                else {
+                    if (curr->next_ == nullptr) {
+                        std::shared_ptr<Node> prev = curr->pre_;
+                        curr->pre_.reset();
+                        prev->next_.reset();
+                        tail = prev;
+                    }
+                    else {
+                        std::shared_ptr<Node> next = curr->next_;
+                        std::shared_ptr<Node> prev = curr->pre_;
+                        next->pre_ = prev;
+                        prev->next_ = next;
+                    }
+                }
+            }
+            curr = curr->next_;
+        }
+    }
 }
 
 int main()
@@ -105,5 +146,4 @@ int main()
     std::cout << std::endl;
 
     return 0;
-
 }

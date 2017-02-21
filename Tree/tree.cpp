@@ -5,16 +5,18 @@ struct node
     int key_value;
     node *left;
     node *right;
-}
+};
 
 class btree {
 public:
     btree ();
-    ~btree ();
+    ~btree (){
+        destory_tree();
+    }
 
     void insert(int key);
     node* search(int key);
-    node* destory_tree();
+    void destory_tree();
 
 private:
     void destory_tree(node* leaf);
@@ -64,3 +66,56 @@ void btree::insert(int key, node* leaf)
     }
 }
 
+node* btree::search(int key, node* leaf)
+{
+    if (leaf != nullptr) {
+        if (key == leaf->key_value) {
+            return leaf;
+        }
+        if (key < leaf->key_value) {
+            return search(key, leaf->left);
+        }
+        else {
+            return search(key, leaf->right);
+        }
+    }
+    else {
+        return nullptr;
+    }
+}
+
+void btree::insert(int key)
+{
+    if (root != NULL) {
+        insert(key, root);
+    }
+    else {
+        root = new node;
+        root->key_value = key;
+        root->left = nullptr;
+        root->right = nullptr;
+    }
+}
+
+node* btree::search(int key)
+{
+    return search(key, root);
+}
+
+void btree::destory_tree()
+{
+    destory_tree(root);
+}
+
+int main(int argc, const char *argv[])
+{
+    btree node;
+    node.insert(1);
+    node.insert(8);
+    node.insert(4);
+    node.insert(10);
+    node.insert(9);
+    node.insert(7);
+    node.search(10);
+    return 0;
+}

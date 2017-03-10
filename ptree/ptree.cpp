@@ -7,94 +7,118 @@
 
 #include<iostream>
 
-struct Node {
-  Node() : data_(0), left(nullptr), right(nullprt) {}
-  Node(int data) : data_(data), left(nullptr), right(nullptr) {}
-  ~Node() {}
-
-  int data_;
-  Node *left;
-  Node *right;
-};
-
+template <typename T>
 class Tree {
 public:
-  Tree() : node_(std::vector<Node()>) {}
-  Tree(const Node& leaf) node_(leaf) {}
-  Tree& insert(int key, const Node& leaf);
-  Node* search(int key, const Node& leaf);
+  struct Node {
+    T key;
+    std::shared_ptr<Node> left;
+    std::shared_ptr<Node> right;
+    Node() : key(), left(), right() {}
+    Node(T x) : key(x), left(), right() {}
+  };
+  std::shared_ptr<Node> root;
 
-
-private:
-  std::vector<Node*> node_;
+public:
+  Tree() : root() {}
+  ~Tree();
+  Tree(Tree&&) = default;
+  Tree& operator= (Tree&&) = default;
+  Tree(const Tree&);
+  Tree& operator= (const Tree&);
+  bool insert(T);
+  bool remove(T);
+  shared_ptr<Node> find(T x) {
+    return find(x, root);
+  }
+  void breath_first();
+  size_t heigth() {
+    return heigth(root);
+  }
 }
 
-Tree& Tree::insert(int key, const Node& leaf)
+template <typename T>
+bool Tree<T>::remove(T x) {
+  return remove(x, root);
+}
+
+template <typename T>
+bool Tree<T>::remove(T x, std::shared_ptr<Node>& p) {
+  if (p && x < p->key)
+    return remove(x, p->left);
+  else if (p && x > p->key) 
+    return remove(x, p->right);
+  else if (p && p->key = x) {
+    if (!p->left) 
+      p = p->right;
+    else if (!p->right)
+      p = p->left;
+    else {
+      std::shared_ptr<Node> q = p->left;
+      while(q->right)
+      q = q->right;
+      p->key = q->key;
+      remove(q->key, p->left);
+    }
+    return true;
+  }
+  return false;
+}
+
+~Tree() {
+  while(root)
+    remove(root->key);
+}
+
+template <typename T>
+bool Tree<T>::insert(T x) {
+  return insert(x, root);
+}
+template <typename T>
+Tree& Tree::insert(T x, std::shared_ptr<Node>& p) 
 {
-  if (key < leaf.data_) {
-    if (leaf.left != nullptr) {
-      insert(key, leaf.left);
+  if (x < p->key) {
+    if (p->left != nullptr) {
+      insert(x, p->left);
     }
     else {
-      leaf.left = Node();
-      leaf.left.data_ = key;
-      leaf.left.left = nullptr;
-      leaf.left.right = nullptr;
+      std::shared_ptr<Node> q = p->left;
+      q->key= key;
+      q->left = nullptr;
+      q->right = nullptr;
     }
   }
   else {
-    if (leaf > leaf.data_) {
-      if (leaf.right != nullptr) {
-        insert(key, leaf.right);
+    if (x > p->key) {
+      if (p->right != nullptr) {
+        insert(x, p->right);
       }
       else {
-        leaf.right = Node();
-        leaf.right.data_ = key;
-        leaf.right.left = nullptr;
-        leaf.right.right = nullptr;
+        std::shared_ptr<Node> q = p->right;
+        q->key= key;
+        q->left = nullptr;
+        q->right = nullptr;
       }
     }
   }
 }
 
-Node* Tree::search(int key, const Node& leaf)
+template <typename T>
+bool Tree<T>::find(T x, std::shared_ptr<Node>& p) {
 {
-  if (leaf != nullptr) {
-    if (key < leaf.left) {
-      search(key, leaf.left);
+  if (p) {
+    if (x < p->left) {
+      search(x, p->left);
     }
-    else if (key > leaf.right) {
-      search(key, leaf.right);
+    else if (x > p->right) {
+      search(x, p->right);
     }
     else {
-      return leaf;
+      return true;
     }
   }
   else {
-    return nullptr;
+    return false;
   }
 }
 
-Tree& Tree::insert(int key)
-{
-  if (node_ != nullptr) {
-    insert(key, node_);
-  }
-  else {
-    node_ = new Node;
-    node_.data_ = key;
-    node_.left = nullptr;
-    node_.right = nullptr;
-    return node_;
-  }
-}
-
-Node* Tree::search(int key)
-{
-  if (node_ != nullptr) {
-    search(key, node_);
-  }
-  else {
-    return nullptr;
-  }
-}
